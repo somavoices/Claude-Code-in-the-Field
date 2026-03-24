@@ -11,8 +11,6 @@ By the end of this document you will have:
 - Claude responding to your first message
 - Your persona's context files ready to load
 
-**Estimated time: 20–30 minutes.**
-
 ---
 
 ## Prerequisites
@@ -138,32 +136,38 @@ This is where you type your messages. A few things to know:
 This is how you give Claude the background it needs to behave as your role-specific
 assistant. You do this at the start of each session.
 
-Open a new Claude Code session from the `claude_code_persona` folder and run:
+**Start Claude Code from inside your persona folder:**
 
 ```
-> /init
+cd personas/developer     # replace with your role folder
+claude
 ```
 
-This reads the CLAUDE.md file in your current folder and loads it as context.
-Claude will acknowledge the context and be ready to work.
-
-**Loading your persona-specific files:**
-
-For your role folder (e.g., `personas/developer/`), you can reference the files
-directly in your first message:
+Claude Code loads `CLAUDE.md` files hierarchically — it automatically reads the
+root `CLAUDE.md` (shared company context) **and** the `CLAUDE.md` in your persona
+subfolder. No manual loading, no naming conflicts.
 
 ```
-> Please read and load the following files as your context for this session:
-  - personas/developer/CLAUDE.md
-  - personas/developer/memory.md
-  - personas/developer/SKILL.md
-
-  Confirm when you have read all three and summarise who you are and what
-  we are working on.
+claude_code_persona/          ← project root
+├── CLAUDE.md                 ← shared company context (auto-loaded)
+└── personas/
+    └── developer/
+        ├── CLAUDE.md         ← persona file (auto-loaded)
+        └── ...
 ```
 
-Claude will read all three files and respond with a summary. From that point
-on in the session, it behaves as your role-specific assistant.
+**Load the remaining context files** (memory and skill) at the start of your session:
+
+```
+> Please read the following files and load them as context:
+  - memory.md
+  - SKILL.md
+
+  Confirm when done and tell me: who are you and what are we working on?
+```
+
+Claude will respond with a summary. From that point on in the session, it behaves
+as your role-specific assistant.
 
 ---
 

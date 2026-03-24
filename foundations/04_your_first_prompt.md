@@ -9,8 +9,6 @@ Write a prompt, run it, evaluate the output, identify what is wrong,
 improve the prompt, and run it again. By the end you will have completed
 one full iteration cycle — the core skill for effective Claude use.
 
-**Estimated time: 30 minutes.**
-
 ---
 
 ## Before You Start
@@ -95,23 +93,29 @@ Read Claude's response carefully. It probably produced something — but notice:
 
 Now load the context files that tell Claude who you are and what your standards are.
 
-In your Claude Code session, type:
+**Start Claude Code from inside your persona folder** — this automatically loads both
+the root `CLAUDE.md` (shared company context) and your persona `CLAUDE.md`:
 
 ```
-Please read the following files and use them as your context for this session:
-
-1. CLAUDE.md (root — shared company context)
-2. personas/[your-role]/CLAUDE.md
-3. personas/[your-role]/memory.md
-4. personas/[your-role]/SKILL.md
-
-Confirm when you have read all four files and tell me: who are you,
-what are you currently working on, and what are the most important
-conventions I should know about?
+cd personas/[your-role]
+claude
 ```
 
 Replace `[your-role]` with your folder name:
 `developer` / `data_analytics` / `qa_testing` / `product_manager` / `business_analyst` / `ops_support`
+
+Then in your Claude Code session, load the remaining context files:
+
+```
+Please read the following files and use them as your context for this session:
+
+1. memory.md
+2. SKILL.md
+
+Confirm when you have read both and tell me: who are you,
+what are you currently working on, and what are the most important
+conventions I should know about?
+```
 
 **Claude should respond with something like:**
 
