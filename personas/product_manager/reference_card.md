@@ -1,5 +1,15 @@
 # Reference Card — Sam Okafor, Product Manager
 
+## How to Use This File
+
+**Do not load this file into Claude.** Keep it open alongside your Claude Code session.
+
+- Before writing a prompt: check the 4-part structure and context shortcuts
+- When a prompt produces weak output: use the vague vs. specific examples to diagnose why
+- When iterating: use the iteration patterns section to identify what to fix
+
+---
+
 ## Prompt Engineering Best Practices
 
 ### The 4-Part Prompt Structure

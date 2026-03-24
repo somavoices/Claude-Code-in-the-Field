@@ -1,5 +1,16 @@
 # Prompt Library — Alex Rivera, Full Stack Engineer
 
+## How to Use This File
+
+**Do not load this file into Claude.** This is a reference for you, not context for Claude.
+
+1. Find the prompt that matches your task
+2. Copy it into your Claude Code session
+3. Replace the `[PLACEHOLDER]` values with your actual input
+4. Run it — Claude already has your context from `CLAUDE.md` and `memory.md`
+
+Adapt prompts over time. If a prompt consistently needs the same tweak, edit this file.
+
 ---
 
 ## 1. Code Review
