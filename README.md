@@ -7,17 +7,6 @@
 
 ---
 
-## Project Name Suggestions
-
-| Name | Angle |
-|---|---|
-| **Claude Code in the Field** | Field service metaphor matches the fictional company |
-| **Fieldwork** | Short, evocative, role-immersion feel |
-| **Claude Code: Live Roles** | Direct, describes the format |
-| **The Squad Kit** | Emphasizes the cross-functional team story |
-
----
-
 ## Who This Is For
 
 Teams and individuals in any of these roles who want to learn Claude Code through *their own work*, not generic tutorials:
