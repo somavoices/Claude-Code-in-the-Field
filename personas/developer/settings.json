@@ -1,0 +1,105 @@
+{
+  "persona": "developer",
+  "name": "Alex Rivera",
+  "role": "Full Stack Engineer",
+  "squad": "Dispatch Core",
+  "permissions": {
+    "file_access": {
+      "allowed": [
+        "src/**",
+        "tests/**",
+        "db/migrations/**",
+        "packages/**",
+        "*.md",
+        "*.json",
+        "*.yaml",
+        "*.sql"
+      ],
+      "denied": [
+        ".env",
+        ".env.*",
+        "**/*secret*",
+        "**/*.pem",
+        "**/*.key",
+        "node_modules/**",
+        "infrastructure/terraform/**"
+      ]
+    },
+    "git": {
+      "allowed_branches": ["feature/*", "fix/*", "chore/*"],
+      "protected_branches": ["main", "release/*", "hotfix/*"],
+      "require_pr_for": ["main", "release/*"],
+      "never_force_push": true,
+      "never_skip_hooks": true
+    },
+    "database": {
+      "allowed": ["SELECT", "INSERT", "UPDATE"],
+      "require_second_engineer": ["DELETE", "DROP", "TRUNCATE", "ALTER"],
+      "require_jira_tag": "db-migration",
+      "never_run_on": "production"
+    },
+    "ci_cd": {
+      "can_trigger_ci": true,
+      "can_approve_production_deploy": false,
+      "production_deploy_requires": "second_engineer_approval"
+    }
+  },
+  "escalation_triggers": [
+    "Any change to dispatch_events schema — notify Priya Nair (Data Platform) 1 sprint ahead",
+    "Any change to API contracts — notify Chris Wang (BA) and Mobile squad",
+    "Any change to error codes or log formats — notify Morgan Blake (Ops) before shipping",
+    "Any architectural decision — requires Ravi Sharma (Staff Engineer) sign-off",
+    "Any change to job_assignment module — requires Jordan Lee (QA) sign-off"
+  ],
+  "safety_guardrails": [
+    "Never commit .env files or credentials",
+    "Never disable SonarQube quality gate",
+    "Never write DELETE/DROP/TRUNCATE without WHERE clause",
+    "Never push directly to main or release/* branches",
+    "Always run EXPLAIN ANALYZE before merging queries on large tables"
+  ],
+  "hooks": {
+    "description": "Shell commands Claude Code executes automatically at lifecycle events",
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "if echo \"$CLAUDE_TOOL_INPUT\" | grep -qiE '(DROP|TRUNCATE|DELETE FROM|push.*main|push.*release|--no-verify|force-push)'; then echo 'BLOCKED: Destructive or unsafe git/SQL command detected. Review safety_checklist.md before proceeding.'; exit 1; fi"
+          }
+        ]
+      },
+      {
+        "matcher": "Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "if echo \"$CLAUDE_TOOL_INPUT\" | grep -qiE '(\\.env|\\.pem|\\.key|password|secret|api_key)'; then echo 'BLOCKED: Possible secret or credential in file write. Review before committing.'; exit 1; fi"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo 'File written. Reminder: run tests before raising PR. Check eval_checklist.md for generated code quality checks.'"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo 'Session complete. Before closing: (1) run Jest locally, (2) check SonarQube gate, (3) verify no .env changes staged.'"
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,96 @@
+{
+  "persona": "qa_testing",
+  "name": "Jordan Lee",
+  "role": "QA Engineer",
+  "squad": "Dispatch Core",
+  "permissions": {
+    "file_access": {
+      "allowed": [
+        "apps/web/cypress/**",
+        "apps/api-tests/**",
+        "tests/**",
+        "*.md",
+        "*.json",
+        "*.yaml"
+      ],
+      "denied": [
+        ".env",
+        "**/*secret*",
+        "**/*.pem",
+        "infrastructure/**",
+        "db/migrations/**"
+      ]
+    },
+    "ci_cd": {
+      "can_trigger_ci": false,
+      "can_approve_production_deploy": false,
+      "can_close_testRail_runs": false
+    },
+    "test_data": {
+      "allowed_accounts": "qa-test-*@company.internal",
+      "never_use": ["real customer data", "production credentials", "PII"]
+    }
+  },
+  "escalation_triggers": [
+    "Any request to skip regression suite — requires Lena Brandt (EM) explicit approval",
+    "Any change to job_assignment or status-machine modules — Jordan sign-off required before merge",
+    "P1 bug found in staging within 48h of release — notify Sam Okafor immediately",
+    "Flake rate >30% on any test — escalate to FSM-1301 before merging related code",
+    "CI failure blocking more than 3 PRs — escalate to Alex Rivera"
+  ],
+  "safety_guardrails": [
+    "Never use real customer data in test fixtures",
+    "Never use cy.wait([number]) — use intercept alias",
+    "Never mark release as ready-to-ship without explicit instruction",
+    "Never approve production deployment",
+    "Always create isolated test data in beforeEach — no shared state across tests"
+  ],
+  "hooks": {
+    "description": "Shell commands Claude Code executes automatically at lifecycle events",
+    "PreToolUse": [
+      {
+        "matcher": "Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "if echo \"$CLAUDE_TOOL_INPUT\" | grep -qE 'cy\\.wait\\([0-9]'; then echo 'BLOCKED: cy.wait([number]) detected. Use cy.intercept + cy.wait(\"@alias\") instead. See SKILL.md for the correct pattern.'; exit 1; fi"
+          },
+          {
+            "type": "command",
+            "command": "if echo \"$CLAUDE_TOOL_INPUT\" | grep -qiE '@(company\\.com|gmail\\.com|yahoo\\.com)' && ! echo \"$CLAUDE_TOOL_INPUT\" | grep -q 'qa-test-'; then echo 'WARNING: Non-test email detected in test file. Use qa-test-*@company.internal accounts only.'; fi"
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "if echo \"$CLAUDE_TOOL_INPUT\" | grep -qiE '(cypress run.*--env.*prod|trigger.*ci|gh workflow run)'; then echo 'BLOCKED: CI pipeline trigger or production test run detected. Jordan manages CI triggers manually.'; exit 1; fi"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo 'Test file written. Reminder: run locally with npx cypress run --spec [path] before raising PR. Check eval_checklist.md for test quality review.'"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo 'Session complete. Before closing: (1) run generated specs locally, (2) grep for cy.wait([number]) in new files, (3) confirm all selectors use data-testid.'"
+          }
+        ]
+      }
+    ]
+  }
+}

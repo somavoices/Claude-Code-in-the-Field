@@ -1,0 +1,57 @@
+{
+  "persona": "data_analytics",
+  "name": "Priya Nair",
+  "role": "Senior Data Analyst",
+  "squad": "Data Platform",
+  "permissions": {
+    "file_access": {
+      "allowed": [
+        "models/**",
+        "analyses/**",
+        "macros/**",
+        "seeds/**",
+        "tests/**",
+        "*.yml",
+        "*.md",
+        "*.sql",
+        "*.py"
+      ],
+      "denied": [
+        ".env",
+        "**/*secret*",
+        "**/*credential*",
+        "profiles.yml"
+      ]
+    },
+    "database": {
+      "snowflake_read": ["RAW", "STAGING", "INTERMEDIATE", "MART"],
+      "snowflake_write": ["dev_priya_nair"],
+      "never_write_to": ["ANALYTICS", "RAW"],
+      "require_elena_approval_for_prod_run": true
+    },
+    "dbt": {
+      "allowed_targets": ["dev"],
+      "require_approval_for": ["prod"],
+      "approver": "Elena Marsh"
+    },
+    "looker": {
+      "can_draft_looks": true,
+      "can_publish_dashboards": false,
+      "publish_requires_review_by": "Sam Okafor"
+    }
+  },
+  "escalation_triggers": [
+    "Any change to fct_sla_breaches or fct_job_completions — requires Elena Marsh sign-off",
+    "Any change to dispatch_jobs-sourced models — notify Alex Rivera (schema dependency)",
+    "Any dashboard update visible to CS team or executives — requires Sam Okafor review",
+    "Source freshness failure on dispatch_jobs — page Priya via PagerDuty (already configured)",
+    "Health Score model changes after CS team go-live — requires Elena approval"
+  ],
+  "safety_guardrails": [
+    "Never output raw customer PII in any response",
+    "Never run dbt run --target prod without Elena Marsh approval",
+    "Always dedup Segment events on event_id in staging layer",
+    "Always run dbt test before marking a model ready for prod",
+    "Never read RAW schema directly in intermediate or mart models"
+  ]
+}

@@ -1,0 +1,41 @@
+{
+  "persona": "product_manager",
+  "name": "Sam Okafor",
+  "description": "MCP tool configuration for Product Manager — Dispatch Core squad",
+  "mcpServers": {
+    "filesystem": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "/workspace/product-docs"],
+      "allowed_paths": [
+        "specs/",
+        "docs/",
+        "roadmap/",
+        "*.md"
+      ],
+      "denied_paths": [
+        "src/",
+        "infrastructure/",
+        ".env",
+        "**/*secret*"
+      ],
+      "notes": "Scoped to product documentation. No access to source code or infrastructure."
+    },
+    "brave-search": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-brave-search"],
+      "env": {
+        "BRAVE_API_KEY": "${BRAVE_API_KEY}"
+      },
+      "notes": "Use for: field service management industry research, competitor feature analysis, user research best practices"
+    }
+  },
+  "usage_guidance": {
+    "filesystem": "Read existing PRDs and specs before writing new ones — maintain consistent format and terminology across documents.",
+    "brave-search": "Research industry context for discovery sessions. Look up competitor capabilities when prioritising features. Never use competitor names in internal specs."
+  },
+  "not_configured": {
+    "jira_api": "Jira managed manually — Claude drafts ticket content, Sam creates and manages tickets in Jira UI",
+    "confluence_api": "Confluence publishing managed manually — Claude drafts content, Sam reviews and publishes",
+    "salesforce": "No direct CRM access — customer context provided by CS team or Morgan's Zendesk summaries"
+  }
+}

@@ -1,0 +1,96 @@
+{
+  "persona": "ops_support",
+  "name": "Morgan Blake",
+  "role": "Senior Support Engineer",
+  "squad": "Platform & Reliability",
+  "permissions": {
+    "file_access": {
+      "allowed": [
+        "runbooks/**",
+        "docs/**",
+        "*.md",
+        "*.yaml",
+        "*.json"
+      ],
+      "denied": [
+        "src/**",
+        "infrastructure/terraform/**",
+        ".env",
+        "**/*secret*",
+        "**/*.pem",
+        "**/*.key"
+      ]
+    },
+    "production": {
+      "read_access": ["Datadog", "PagerDuty", "Zendesk (read)"],
+      "write_access": "none",
+      "db_writes": "never — require Alex Rivera + Staff Engineer sign-off",
+      "config_changes": "never autonomously"
+    },
+    "communications": {
+      "zendesk_draft": true,
+      "zendesk_send": false,
+      "zendesk_send_requires": "Morgan Blake explicit review",
+      "pagerduty_acknowledge": false,
+      "pagerduty_close": false
+    }
+  },
+  "escalation_triggers": [
+    "Any P1 affecting Enterprise tier — page Alex Rivera (PagerDuty) if unresolved in 10 min",
+    "Any incident not resolved in 30 min — escalate to Lena Brandt (EM)",
+    "Any suspected data loss or security issue — use #security-incidents, do NOT use normal process",
+    "Any production DB write request — requires Alex Rivera + Staff Engineer, never autonomous",
+    "Any customer-facing communication — Morgan Blake reviews before send"
+  ],
+  "safety_guardrails": [
+    "Never run write commands on production infrastructure",
+    "Never acknowledge or close PagerDuty pages autonomously",
+    "Never send Zendesk replies without Morgan Blake review",
+    "Never share internal service names or architecture in external communications",
+    "Never speculate on root cause in customer-facing messages"
+  ],
+  "hooks": {
+    "description": "Shell commands Claude Code executes automatically at lifecycle events",
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "if echo \"$CLAUDE_TOOL_INPUT\" | grep -qiE '(INSERT|UPDATE|DELETE|DROP|ALTER|kubectl apply|terraform apply|aws.*put|aws.*delete|aws.*update)'; then echo 'BLOCKED: Write or destructive infrastructure command detected. Production is read-only for Morgan. Requires Alex Rivera + Staff Engineer sign-off.'; exit 1; fi"
+          }
+        ]
+      },
+      {
+        "matcher": "Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "if echo \"$CLAUDE_TOOL_INPUT\" | grep -qiE '(dispatch-service|auth-service|job-service|internal.*architecture)'; then echo 'WARNING: Internal service name detected. If this is a customer-facing document (Zendesk/release notes), remove internal names before use.'; fi"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo 'Document written. Reminder: review before use — check safety_checklist.md. Zendesk drafts require Morgan review before sending. Runbook PRs require Lena Brandt review.'"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo 'Session complete. Before closing: (1) review any runbook changes against the quality checklist, (2) confirm no internal service names in customer-facing drafts, (3) raise runbook PRs for Lena Brandt review.'"
+          }
+        ]
+      }
+    ]
+  }
+}

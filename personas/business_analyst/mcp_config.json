@@ -1,0 +1,62 @@
+{
+  "persona": "business_analyst",
+  "name": "Chris Wang",
+  "description": "MCP tool configuration for Business Analyst — Integrations squad",
+  "mcpServers": {
+    "filesystem": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "/workspace/integration-specs"],
+      "allowed_paths": [
+        "specs/",
+        "docs/",
+        "diagrams/",
+        "*.md",
+        "*.yaml"
+      ],
+      "denied_paths": [
+        "src/",
+        "infrastructure/",
+        ".env",
+        "**/*credential*",
+        "**/*secret*"
+      ],
+      "notes": "Scoped to integration specs and documentation. No source code or infrastructure access."
+    },
+    "github": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-github"],
+      "env": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "${GITHUB_TOKEN}"
+      },
+      "allowed_operations": [
+        "read_file",
+        "list_files",
+        "search_code"
+      ],
+      "denied_operations": [
+        "create_pull_request",
+        "push",
+        "merge"
+      ],
+      "notes": "Read-only. Use for: reading existing API endpoint definitions, checking current v1 API behaviour, reading OpenAPI specs."
+    },
+    "brave-search": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-brave-search"],
+      "env": {
+        "BRAVE_API_KEY": "${BRAVE_API_KEY}"
+      },
+      "notes": "Use for: REST API design best practices, webhook delivery patterns, OpenAPI spec standards, rate limiting patterns"
+    }
+  },
+  "usage_guidance": {
+    "filesystem": "Read existing requirement sets (REQ-API2-*) before writing new ones — maintain ID sequence and consistent shall/should language.",
+    "github": "Read current v1 API implementation to understand actual behaviour before documenting v2 requirements. Never assume — verify against code.",
+    "brave-search": "Research standard patterns for webhook retry logic, API versioning, and rate limit response headers before specifying behaviour."
+  },
+  "not_configured": {
+    "confluence_api": "Confluence publishing managed manually — Claude drafts requirements, Chris reviews and publishes",
+    "jira_api": "Jira managed manually — Chris creates and manages tickets in Jira UI",
+    "salesforce": "Salesforce read-only access via browser — customer account context provided manually to Claude as text"
+  }
+}
