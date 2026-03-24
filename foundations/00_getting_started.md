@@ -9,8 +9,6 @@ If you have never used Claude or any AI assistant before, start here.
 This document explains what Claude Code is, what it can do for your specific role,
 and what it cannot do. Everything else in this training kit builds on these foundations.
 
-**Estimated reading time: 10 minutes.**
-
 ---
 
 ## What Is Claude?

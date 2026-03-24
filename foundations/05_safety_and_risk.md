@@ -8,8 +8,6 @@
 How Claude can fail, what the real risks of AI tools at work are, how to evaluate
 output before using it, and why the safety guardrails in this kit exist.
 
-**Estimated reading time: 20 minutes.**
-
 ---
 
 ## The Fundamental Risk: Claude Sounds Confident When It Is Wrong

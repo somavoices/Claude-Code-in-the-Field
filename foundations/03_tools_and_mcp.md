@@ -8,8 +8,6 @@
 How Claude Code connects to external tools — your filesystem, GitHub, databases,
 and documentation. What MCP is, why it exists, and how to think about permissions.
 
-**Estimated reading time: 20 minutes.**
-
 ---
 
 ## The Problem MCP Solves

@@ -8,8 +8,6 @@
 What an agent is, how it differs from a regular conversation, when to use agent mode,
 how to set one up safely, and how to review what it produced.
 
-**Estimated reading time: 20 minutes.**
-
 ---
 
 ## What Is an Agent?

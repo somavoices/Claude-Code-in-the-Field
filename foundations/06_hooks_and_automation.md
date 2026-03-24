@@ -8,8 +8,6 @@
 What hooks are, how they work, how to read the hooks in your persona's settings.json,
 and how they protect you from common mistakes.
 
-**Estimated reading time: 15 minutes.**
-
 ---
 
 ## The Problem Hooks Solve

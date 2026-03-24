@@ -8,8 +8,6 @@
 This document explains the five foundational concepts that everything else in this
 training kit builds on. Read it before using any persona files.
 
-**Estimated reading time: 30 minutes.**
-
 ---
 
 ## Concept 1 — What Is a Prompt?
