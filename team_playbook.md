@@ -1,5 +1,7 @@
 # Team Playbook — Cross-Persona Claude Code Workflows
 
+> **Status: Draft — content under review**
+
 How the six colleagues use Claude Code individually and together. Read this to understand
 how work flows across roles, what each persona hands off to the next, and how Claude
 supports the whole team — not just individual contributors.
@@ -149,9 +151,10 @@ Every persona's prompt should include:
 4. **The input** — the actual code, notes, or data to work with
 
 ### Iteration Principle
-Claude's first output is a draft. Use your `eval_checklist.md` to score it.
-If it scores below threshold: identify the specific gap, add that constraint to
-your prompt, and re-run. Track what worked in your `eval_checklist.md` iteration log.
+Claude's first output is a draft. Use your `eval_checklist.md` (human reference,
+keep it open alongside your session) to score it. If it scores below threshold:
+identify the specific gap, add that constraint to your prompt, and re-run.
+Track what worked in the iteration log.
 
 ---
 

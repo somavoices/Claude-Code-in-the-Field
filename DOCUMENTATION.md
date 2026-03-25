@@ -1,6 +1,8 @@
 # Training Kit Documentation
 ## Claude Code — Persona-Based Training Artifacts
 
+> **Status: Draft — content under review**
+
 ---
 
 ## What Is This Kit?
@@ -36,9 +38,25 @@ helps different roles on the same team.
 ```
 claude_code_persona/
 │
-├── CLAUDE.md                  ← Shared company context (loaded by all personas)
+├── CLAUDE.md                  ← Shared company context (auto-loaded by all personas)
 ├── DOCUMENTATION.md           ← This file
+├── README.md                  ← Kit overview and getting started guide
 ├── team_playbook.md           ← How all 6 personas work together
+│
+├── .claude/                   ← Project-level Claude Code config (auto-loaded)
+│   ├── settings.json          ← Universal rules applying to all personas
+│   ├── skills/                ← Slash commands available in any session
+│   │   ├── write-pr-description/SKILL.md
+│   │   ├── write-dbt-model/SKILL.md
+│   │   ├── write-cypress-test/SKILL.md
+│   │   ├── write-prd/SKILL.md
+│   │   ├── write-functional-requirements/SKILL.md
+│   │   └── write-runbook/SKILL.md
+│   └── agents/                ← Sub-agent definitions (4 personas)
+│       ├── developer-alex.md
+│       ├── data-analyst-priya.md
+│       ├── qa-jordan.md
+│       └── ops-morgan.md
 │
 └── personas/
     ├── developer/
@@ -48,16 +66,14 @@ claude_code_persona/
     ├── business_analyst/
     └── ops_support/
         │
-        ├── CLAUDE.md              ← Who I am and how Claude should behave
-        ├── memory.md              ← Project knowledge, people, domain rules
-        ├── SKILL.md               ← Step-by-step guide for one key task
-        ├── settings.json          ← Permissions, safety rules, automation hooks
-        ├── prompt_library.md      ← 5–6 ready-to-use prompts for daily tasks
-        ├── reference_card.md      ← Quick-reference for prompt writing
-        ├── safety_checklist.md    ← What to check before acting on output
-        ├── mcp_config.json        ← Tool connections (GitHub, filesystem, search)
-        ├── eval_checklist.md      ← How to score and improve Claude's output
-        └── agent_instructions.md  ← How to run Claude autonomously (4 roles only)
+        ├── CLAUDE.md              ← Who I am and how Claude should behave (auto-loaded)
+        ├── memory.md              ← Project knowledge, people, domain rules (on demand)
+        ├── settings.json          ← Role-specific permissions and hooks (auto-loaded)
+        ├── .mcp.json              ← Tool connections: GitHub, filesystem, search (auto-loaded)
+        ├── prompt_library.md      ← 5–6 ready-to-use prompts — human reference
+        ├── reference_card.md      ← Quick-reference for prompt writing — human reference
+        ├── safety_checklist.md    ← What to check before acting on output — human reference
+        └── eval_checklist.md      ← How to score and improve Claude's output — human reference
 ```
 
 ---
@@ -80,8 +96,8 @@ rules and must be notified before log format changes. Priya (Data) knows that Al
 owns the source tables her dbt models depend on. The six personas become a team,
 not six isolated individuals.
 
-**When to use:** Load this file at the start of every training session, regardless
-of which persona is being demonstrated.
+**How it loads:** Automatically — Claude Code reads it whenever launched from any
+subfolder of this project.
 
 ---
 
@@ -106,6 +122,67 @@ where participants from multiple roles collaborate on the same feature.
 
 ---
 
+## .claude/ — Project-Level Config
+
+### .claude/settings.json
+**What it is:** The project-wide Claude Code settings file. Applies to every persona.
+
+**What it contains:**
+- Universal `deny` rules — no force push, no credential writes — enforced for all roles
+- Universal `allow` rules — common git read commands available everywhere
+- A credential-detection PreToolUse hook shared across all personas
+
+**How it layers:** Claude Code merges settings at multiple levels —
+project (`.claude/settings.json`) → persona (`personas/<role>/settings.json`).
+The project level sets the floor; each persona adds role-specific rules on top.
+
+---
+
+### .claude/skills/
+**What it is:** Slash commands that teach Claude how to perform one high-value task
+per role to that team's exact standards.
+
+**How it works:** Each skill lives in `.claude/skills/<name>/SKILL.md` with YAML
+frontmatter. Claude Code registers them automatically at startup. Participants invoke
+them by typing `/skill-name` — no manual file loading needed.
+
+**Skills in this kit:**
+
+| Slash command | Persona | Task |
+|---|---|---|
+| `/write-pr-description` | Developer | GitHub PR descriptions (What/How/Test/Risk/Jira) |
+| `/write-dbt-model` | Data & Analytics | dbt models (layer rules, templates, schema.yml) |
+| `/write-cypress-test` | QA & Testing | Cypress E2E tests (selectors, intercepts, data isolation) |
+| `/write-prd` | Product Manager | Feature specs / PRDs (Given/When/Then ACs) |
+| `/write-functional-requirements` | Business Analyst | Functional requirements (REQ-ID, shall/should) |
+| `/write-runbook` | Ops & Support | Operational runbooks (concrete steps, escalation paths) |
+
+**Why it matters:** Without a skill, Claude writes in its own generic style. With a
+skill invoked, it follows the team's specific conventions — right selector strategy
+in Cypress, right layer in dbt, right language in requirements. Output is immediately
+usable, not a draft requiring heavy editing.
+
+---
+
+### .claude/agents/
+**What it is:** Sub-agent definitions for autonomous multi-step task execution.
+Each file defines a named agent with its allowed tools, model, and system prompt.
+
+**Agents in this kit:**
+
+| Agent | Persona | Example tasks |
+|---|---|---|
+| `developer-alex` | Developer | Code audits, migration reviews, test generation across many files |
+| `data-analyst-priya` | Data & Analytics | Model audits, schema.yml generation, RAW schema dependency checks |
+| `qa-jordan` | QA & Testing | Cypress spec audits, E2E test generation from acceptance criteria |
+| `ops-morgan` | Ops & Support | Runbook audits, post-mortem generation, stale runbook identification |
+
+**Why only 4 personas:** Product Manager and Business Analyst produce documents that
+require human judgment at every step. Developer, Data, QA, and Ops have well-defined,
+automatable multi-step tasks where autonomous execution saves real time.
+
+---
+
 ## Per-Persona Files
 
 Each of the following files exists in every persona folder. The content is specific
@@ -124,10 +201,9 @@ what they are working on, and how it should behave.
 - **What Claude must never do** — role-specific red lines (e.g., never push to main,
   never publish without review, never run dbt on prod without approval)
 
-**Why it matters:** This is the most important file in the kit. When a participant
-loads this into Claude, it stops behaving generically and starts behaving like a
-colleague who knows their exact situation. The quality of Claude's output increases
-immediately because it understands the context without needing to be told every time.
+**How it loads:** Automatically — when launched from inside the persona folder, both
+the root `CLAUDE.md` and the persona `CLAUDE.md` load. The persona activates by
+launching Claude Code from inside that folder.
 
 **Training use:** Demonstrate the difference between prompting Claude with and without
 this file loaded. The contrast makes the value of CLAUDE.md immediately obvious.
@@ -147,10 +223,8 @@ work that Claude would not otherwise know.
 - **Incidents and lessons** — past failures and what was learned, so Claude
   doesn't recommend approaches that have already failed
 
-**Why it matters:** Claude's training data ends at a cutoff date. It knows nothing
-about this team's specific incidents, their current sprint, or the race condition
-in the job_assignment module. memory.md bridges that gap. It gives Claude the
-institutional knowledge that normally only lives in people's heads.
+**How it loads:** On demand — participants load it explicitly at the start of a session:
+*"Please read memory.md as additional context."* Not auto-loaded to keep CLAUDE.md lean.
 
 **Training use:** Show participants that Claude gives better, more cautious output
 after memory.md is loaded. For example: the developer's memory.md mentions the
@@ -159,46 +233,14 @@ concurrent assignment code.
 
 ---
 
-### SKILL.md
-**What it is:** A detailed, executable guide for one high-value task that this
-persona does regularly. It teaches Claude exactly how to perform that task
-to the team's standards.
-
-**What each persona's SKILL covers:**
-
-| Persona | Skill |
-|---|---|
-| Developer | Writing GitHub PR descriptions |
-| Data & Analytics | Writing dbt models (layer conventions, templates, tests) |
-| QA & Testing | Writing Cypress E2E tests (selectors, intercepts, data isolation) |
-| Product Manager | Writing feature specs / PRDs (Given/When/Then ACs) |
-| Business Analyst | Writing functional requirements (REQ-ID format, shall/should language) |
-| Ops & Support | Writing operational runbooks (concrete steps, escalation paths) |
-
-**Why it matters:** Without SKILL.md, Claude writes code or documents in its own
-generic style. With SKILL.md loaded, it follows the team's specific conventions —
-using the right selector strategy in Cypress tests, the right layer in dbt models,
-the right language in requirements. Output is immediately usable, not just a draft
-that needs heavy editing.
-
-**Training use:** Compare Claude's output on a test generation task with and without
-SKILL.md. The difference demonstrates why encoding your team's conventions into
-Claude's context saves significant rework.
-
----
-
-### settings.json
-**What it is:** The configuration file for Claude Code — defines what Claude is
-allowed to do, what it must escalate, and for three personas (Developer, QA, Ops),
-what automated checks run at key moments.
+### settings.json (per persona)
+**What it is:** Role-specific Claude Code permissions and hooks, layered on top of
+the project-level `.claude/settings.json`.
 
 **What it contains:**
-- **Permissions** — which files Claude can read/write, which git branches are allowed,
-  which database operations require a second sign-off
-- **Escalation triggers** — conditions that require a human decision before proceeding
-  (e.g., any change to the dispatch_events schema must notify Priya Nair)
-- **Safety guardrails** — hard rules Claude must never break, regardless of instruction
-- **Hooks** (Developer, QA, Ops only) — shell commands that run automatically:
+- **`permissions.allow`** — git commands, test runners, and tool actions permitted for this role
+- **`permissions.deny`** — commands always blocked (e.g., force push, prod DB writes)
+- **`hooks`** — shell commands that run automatically at key moments:
   - *PreToolUse hooks* block dangerous actions before they happen (e.g., block any
     SQL with DROP/TRUNCATE, block cy.wait([number]) in test files)
   - *PostToolUse hooks* remind the participant of next steps after a file is written
@@ -206,37 +248,52 @@ what automated checks run at key moments.
 
 **Why it matters:** settings.json moves safety from "Claude tries to remember the
 rules" to "the system enforces the rules automatically." A hook that blocks
-`cy.wait(3000)` never forgets to check. A hook that warns about internal service
-names in Zendesk drafts catches errors before the customer sees them.
+`cy.wait(3000)` never forgets to check.
 
-**Training use:** Demonstrate a hook firing — e.g., show the Developer trying to
-run a DROP statement and the PreToolUse hook blocking it. Explain that hooks are
-the difference between Claude as a polite assistant and Claude as a system with
+**Training use:** Demonstrate a hook firing — e.g., the Developer trying to run a
+DROP statement and the PreToolUse hook blocking it. Explain that hooks are the
+difference between Claude as a polite assistant and Claude as a system with
 enforced guardrails.
+
+---
+
+### .mcp.json (per persona)
+**What it is:** The MCP (Model Context Protocol) server configuration for this
+persona — defines which external tools Claude connects to at startup.
+
+**What it contains:** A `mcpServers` object with one entry per tool. Each entry
+specifies the `command` to run (e.g., `npx`), `args`, and `env` for credentials.
+Permissions and safety rules for those tools are enforced via `settings.json` hooks
+— not inside `.mcp.json` itself.
+
+**Tools configured per persona:**
+
+| Persona | Tools |
+|---|---|
+| Developer | GitHub, PostgreSQL staging DB (read-only), Filesystem, Web search |
+| Data & Analytics | Filesystem (dbt project), GitHub (read-only), Web search |
+| QA & Testing | Filesystem (test directories), GitHub (read-only), Web search |
+| Product Manager | Filesystem (docs), Web search |
+| Business Analyst | Filesystem (specs), GitHub (read-only), Web search |
+| Ops & Support | Filesystem (runbooks), GitHub (read + PR creation), Web search |
+
+**How it loads:** Automatically — Claude Code reads `.mcp.json` at startup and
+connects the configured servers.
+
+**Training use:** Use in Phase 3 (Integration) to demonstrate Claude reading an
+actual file from the codebase before generating output. Compare output quality
+with and without MCP tool access.
 
 ---
 
 ### prompt_library.md
 **What it is:** A collection of 5–6 complete, ready-to-use prompts for the most
-common tasks this persona performs with Claude.
+common tasks this persona performs with Claude. **Human reference — do not load into Claude.**
 
 **What makes these prompts effective:**
-- Every prompt includes the role context, the task, the rules, and placeholders
-  for the input — the full 4-part structure
-- Rules in each prompt reflect the team's actual conventions (not generic best practices)
-- Each prompt specifies exactly what to check for, what format to use, and
-  what to never do
-- Placeholders are clearly marked — participants just fill in the actual content
-
-**Example — Developer's code review prompt covers:**
-TypeScript strict violations, N+1 query patterns, missing error handling, hardcoded
-values, monetary float storage, missing tests, downstream impact on Mobile squad
-and Data Platform.
-
-**Why it matters:** Participants don't need to learn prompt engineering from scratch.
-They start with prompts that already work for their role and refine from there.
-The prompt library also teaches by example — reading a well-structured prompt
-helps participants understand what makes a prompt effective.
+- Every prompt includes role context, the task, the rules, and placeholders for input
+- Rules reflect the team's actual conventions, not generic best practices
+- Placeholders are clearly marked — participants fill in the actual content
 
 **Training use:** Have participants run a prompt from the library in the first session
 before they've learned any prompt engineering theory. The immediate quality of the
@@ -246,167 +303,78 @@ output demonstrates the value of good context and specificity.
 
 ### reference_card.md
 **What it is:** A one-page quick-reference guide for writing effective prompts in
-this specific role. Designed to stay open during training exercises.
+this specific role. Keep open alongside a session. **Human reference — do not load into Claude.**
 
 **What it contains:**
-- **The 4-part prompt structure** — Context, Task, Rules, Input — with role-specific
-  examples of each
-- **Vague vs. specific prompt examples** — side-by-side comparisons showing how
-  specificity improves output quality
-- **Context shortcuts** — pre-written stack and convention descriptions to paste
-  into any prompt (so participants don't have to re-type them each time)
-- **Claude for daily work** — a quick table mapping task type to prompt approach
-- **Iteration patterns** — what to do when Claude gets it wrong (too generic,
-  wrong style, missing edge case, etc.)
-- **Safety reminders** — the top 3–4 things never to paste into a prompt
-  (secrets, PII, production credentials)
+- The 4-part prompt structure — Context, Task, Rules, Input — with role-specific examples
+- Vague vs. specific prompt comparisons
+- Context shortcuts — pre-written stack descriptions to paste into any prompt
+- Iteration patterns — what to do when Claude gets it wrong
 
-**Why it matters:** In training, participants often don't know why their prompt
-produced a poor result. The reference card gives them a structured way to diagnose
-the problem and fix it without needing to ask the facilitator.
-
-**Training use:** Hand this out (or have participants open it) at the start of
-Phase 1 exercises. It is the fastest way to get participants writing better prompts
-independently.
+**Training use:** Open at the start of Phase 1 exercises. Fastest way to get
+participants writing better prompts independently.
 
 ---
 
 ### safety_checklist.md
 **What it is:** A role-specific checklist to run before acting on any Claude output.
-Covers code quality, data safety, process compliance, and absolute red lines.
+**Human reference — do not load into Claude.**
 
 **Structure:**
-- Multiple sections, each covering one type of output (e.g., Generated Code,
-  PR Description, SQL Query)
-- Each check is a yes/no question — answer No means the output needs revision
-- Score thresholds — e.g., "6/7 to use output; if below 6, refine the prompt and re-run"
-- **Red lines section** — non-negotiable rules that apply regardless of score
-  (e.g., never push to main, never output PII, never send Zendesk reply without review)
+- Multiple sections per output type (Generated Code, PR Description, SQL Query, etc.)
+- Each check is a yes/no question — No means the output needs revision
+- Score thresholds (e.g., "6/7 to use; below 6, refine and re-run")
+- Red lines — non-negotiable rules regardless of score
 
-**Why it matters:** Training participants to evaluate Claude's output critically is
-as important as training them to prompt effectively. Without an evaluation habit,
-participants either over-trust Claude (accepting low-quality output) or under-trust
-it (rejecting good output and doing the work manually). The checklist builds the
-habit of structured evaluation.
-
-**Training use:** After any exercise that produces Claude output, run the checklist
-as a group. The scoring and threshold system makes it concrete — "this output scores
-5/7, which is below threshold, so we need to refine the prompt."
-
----
-
-### mcp_config.json
-**What it is:** The MCP (Model Context Protocol) server configuration for this
-persona — defines which external tools Claude can connect to, what it is allowed
-to do with each tool, and usage guidance.
-
-**What tools are configured per persona:**
-
-| Persona | Tools |
-|---|---|
-| Developer | GitHub (read + PR creation), PostgreSQL staging DB (read-only), Filesystem, Web search |
-| Data & Analytics | Filesystem (dbt project), GitHub (read-only), Web search |
-| QA & Testing | Filesystem (test directories), GitHub (read-only), Web search |
-| Product Manager | Filesystem (docs), Web search |
-| Business Analyst | Filesystem (specs), GitHub (read-only), Web search |
-| Ops & Support | Filesystem (runbooks), GitHub (read + PR creation), Web search |
-
-**Why it matters:** MCP is how Claude goes from a text assistant to an active
-participant in the workflow — reading actual code files, searching documentation,
-querying the database to verify queries. The config file shows participants how
-to give Claude real access to their tools while maintaining appropriate boundaries
-(e.g., GitHub read is always allowed; merging PRs is never allowed).
-
-**Training use:** Use in Phase 3 (Integration) to demonstrate Claude reading an
-actual file from the codebase before generating output. Compare output quality
-with and without MCP tool access.
+**Training use:** After any exercise, run the checklist as a group to build the
+evaluation habit.
 
 ---
 
 ### eval_checklist.md
-**What it is:** A structured evaluation framework for scoring Claude's output
-quality, with pass/revise/reject criteria and a score threshold for each output type.
+**What it is:** A structured evaluation framework for scoring Claude's output quality.
+**Human reference — do not load into Claude.**
 
 **What it contains:**
-- **Scored sections** — one per output type (e.g., Generated Code, PR Description,
-  SQL Query). Each has 6–10 specific checks with Pass / Revise / Reject columns.
-- **Score thresholds** — e.g., "7/8 to use output. Any monetary float = reject immediately."
-- **Hard rejects** — specific conditions that mean reject regardless of overall score
-  (e.g., any PII in output, any blame language in a post-mortem)
-- **Iteration log** — a table for recording what prompt worked, what didn't, and
-  what to change next time
+- Scored sections — 6–10 checks per output type with Pass / Revise / Reject columns
+- Score thresholds and hard rejects
+- Iteration log — record what prompt worked, what didn't, and what to change
 
-**Why it matters:** This file teaches the evaluation-and-iteration loop, which is
-the skill that separates effective Claude users from ineffective ones. Good prompting
-is not about getting perfect output the first time — it is about quickly identifying
-what is wrong and improving the prompt. The iteration log makes this a habit, not
-a one-off.
-
-**Training use:** Central to Phase 3 (Evaluation & Iteration). Run an exercise where
-participants deliberately use a weak prompt, score the output with the checklist,
-identify the gap, improve the prompt, and score again.
-
----
-
-### agent_instructions.md
-*(Developer, Data & Analytics, QA & Testing, Ops & Support only)*
-
-**What it is:** A guide for running Claude as an autonomous agent — delegating a
-multi-step task and letting Claude work through it with minimal intervention.
-
-**What it contains:**
-- **When to use agent mode** — concrete examples of tasks suitable for autonomous
-  execution (e.g., "audit all Cypress specs for cy.wait([number]) usage")
-- **Agent constraints prompt** — a complete system prompt to give Claude when
-  starting an agent session. Defines: squad context, permissions, task execution
-  rules, and absolute never-dos. Copy-paste ready.
-- **Task handoff template** — a structured format for specifying Goal, Scope,
-  Out of scope, Success criteria, Deliverables, and Flag conditions
-- **Post-agent review checklist** — what to verify after the agent completes,
-  before using or merging its output
-
-**Why this is only for 4 personas:** Product Manager and Business Analyst roles
-produce documents that require human judgment at every step — a PM should not
-autonomously create Jira tickets or publish specs. Developer, Data, QA, and Ops
-have well-defined, automatable multi-step tasks (code audit, model generation,
-test generation, runbook audit) where autonomous execution saves real time.
-
-**Why it matters:** Agent mode is the highest-leverage use of Claude — it handles
-tasks that would otherwise take hours. But it requires clear constraints to be safe.
-This file teaches participants both when to use it and how to set it up correctly.
-
-**Training use:** Phase 4 (Automation). Demonstrate an agent session live —
-e.g., the Developer agent auditing all migrations for missing rollback scripts.
-Show the task handoff template being filled in, the agent running, and the
-post-agent review checklist being applied.
+**Training use:** Central to Phase 3. Run an exercise where participants deliberately
+use a weak prompt, score the output, identify the gap, improve the prompt, score again.
 
 ---
 
 ## How the Files Work Together
 
-### Loading Order for a Session
+### What Loads Automatically vs. On Demand
 
-```
-Step 1: Load root CLAUDE.md          → Claude knows the company, team, shared projects
-Step 2: Load persona CLAUDE.md       → Claude knows who you are and your constraints
-Step 3: Load persona memory.md       → Claude knows your project history and domain rules
-Step 4: Load persona SKILL.md        → Claude knows how to do your key task correctly
-```
-
-Once these four files are loaded, Claude behaves as a role-specific colleague.
-The remaining files are tools the *participant* uses — not loaded into Claude.
-
-### Files the Participant Uses (not loaded into Claude)
-
-| File | When the participant uses it |
+| File | How it loads |
 |---|---|
-| `prompt_library.md` | To find a ready-made prompt for the task at hand |
-| `reference_card.md` | To craft or improve a prompt from scratch |
-| `safety_checklist.md` | Before acting on Claude's output |
-| `eval_checklist.md` | To score output quality and decide whether to iterate |
-| `mcp_config.json` | To configure tool connections at session setup |
-| `agent_instructions.md` | When delegating a multi-step task to Claude |
-| `settings.json` | Configured once at Claude Code setup — hooks run automatically |
+| `CLAUDE.md` (root + persona) | **Automatic** — on launch from the persona folder |
+| `settings.json` (project + persona) | **Automatic** — merged at startup |
+| `.mcp.json` | **Automatic** — MCP servers connect at startup |
+| `.claude/skills/` | **Automatic** — registered as slash commands |
+| `.claude/agents/` | **On demand** — invoked explicitly or spawned by Claude |
+| `memory.md` | **On demand** — *"Please read memory.md as context"* |
+| `prompt_library.md` | **Human reference** — copy prompts into the session |
+| `reference_card.md` | **Human reference** — keep open alongside the session |
+| `safety_checklist.md` | **Human reference** — check before acting on output |
+| `eval_checklist.md` | **Human reference** — score output quality after a session |
+
+### Session Setup (what a participant does)
+
+```
+1. cd personas/<role>         → navigate to persona folder
+2. claude                     → launch Claude Code
+                                 CLAUDE.md (root + persona) auto-loads
+                                 settings.json (project + persona) auto-loads
+                                 .mcp.json auto-loads
+                                 skills register as slash commands
+3. "Read memory.md"           → optional: load deeper project context
+4. /skill-name                → invoke a skill for a specific task
+5. Write prompt               → use prompt_library.md as reference
+```
 
 ---
 
@@ -415,46 +383,41 @@ The remaining files are tools the *participant* uses — not loaded into Claude.
 | Training Phase | Topic | Files Used |
 |---|---|---|
 | Phase 1 — Foundation | Prompt engineering | `prompt_library.md`, `reference_card.md` |
-| Phase 1 — Foundation | Best practices | `reference_card.md` |
 | Phase 1 — Foundation | Permissions & safety | `settings.json`, `safety_checklist.md` |
-| Phase 2 — Daily Use | Daily work patterns | `reference_card.md` (daily work section) |
-| Phase 2 — Daily Use | Memory | `memory.md` |
-| Phase 2 — Daily Use | Skills | `SKILL.md` |
-| Phase 2 — Daily Use | CLAUDE.md | `CLAUDE.md` (persona + root) |
-| Phase 3 — Integration | Tool use & MCP | `mcp_config.json` |
-| Phase 3 — Integration | Co-work | Root `CLAUDE.md`, `team_playbook.md` |
+| Phase 2 — Daily Use | Context & memory | `CLAUDE.md` (persona + root), `memory.md` |
+| Phase 2 — Daily Use | Skills | `.claude/skills/` slash commands |
+| Phase 3 — Integration | Tool use & MCP | `.mcp.json` |
 | Phase 3 — Integration | Evaluation & iteration | `eval_checklist.md` |
-| Phase 4 — Automation | Agents | `agent_instructions.md` |
-| Phase 4 — Automation | Hooks | `settings.json` (hooks section) |
-| Phase 4 — Automation | Overall work patterns | `team_playbook.md` |
+| Phase 3 — Integration | Cross-team workflows | root `CLAUDE.md`, `team_playbook.md` |
+| Phase 4 — Automation | Agents | `.claude/agents/` |
+| Phase 4 — Automation | Hooks | `settings.json` hooks section |
 
 ---
 
 ## Facilitator Notes
 
 ### Recommended Session Flow
-1. **Open with the team_playbook.md** — show all six personas on one page, explain
-   they are colleagues at the same company
-2. **Load root CLAUDE.md + persona CLAUDE.md** — show the before/after difference
-   in Claude's output quality
+1. **Open with team_playbook.md** — show all six personas on one page, explain they are colleagues
+2. **Load root CLAUDE.md + persona CLAUDE.md** — show the before/after difference in output quality
 3. **Run a prompt from prompt_library.md** — immediate success builds confidence
-4. **Introduce reference_card.md** — teach the 4-part structure using the example
-   the participant just ran
+4. **Introduce reference_card.md** — teach the 4-part structure using the example just run
 5. **Apply safety_checklist.md** — evaluate the output they just got
-6. **Load memory.md** — show how Claude's output changes with project-specific knowledge
-7. **Load SKILL.md** — show how output matches team conventions without instruction
-8. **Configure mcp_config.json** — connect a tool and show Claude reading real files
+6. **Load memory.md** — show how output changes with project-specific knowledge
+7. **Invoke a skill** — type `/skill-name`, show output matching team conventions without instruction
+8. **Configure .mcp.json** — connect a tool, show Claude reading real files
 9. **Run eval_checklist.md** — deliberate iteration exercise
-10. **Demo agent_instructions.md** — run an autonomous task, apply post-agent review
+10. **Demo an agent** — invoke a `.claude/agents/` agent, apply post-agent review
 
 ### Key Demonstration Contrasts
-- Claude without CLAUDE.md vs. with CLAUDE.md loaded
-- Claude without memory.md vs. with memory.md (especially incident/lesson references)
-- A weak prompt vs. the same task using prompt_library.md template
-- Output accepted immediately vs. output evaluated with safety_checklist.md
-- Single-turn task vs. agent mode with agent_instructions.md
+- Claude without `CLAUDE.md` vs. with it loaded
+- Claude without `memory.md` vs. with it (especially incident/lesson references)
+- A weak prompt vs. the same task using `prompt_library.md` template
+- Output accepted immediately vs. output evaluated with `safety_checklist.md`
+- Single-turn task vs. agent mode via `.claude/agents/`
+- No hooks vs. a PreToolUse hook blocking a dangerous command live
 
 ### What Participants Take Away
 Each participant leaves with a complete, working Claude Code setup for their role —
-all files configured, prompts ready to use, hooks active. They do not need to build
-anything from scratch. The training kit is the starting point for real daily use.
+all files configured, prompts ready to use, hooks active, skills registered. They do
+not need to build anything from scratch. The training kit is the starting point for
+real daily use.
