@@ -1,6 +1,8 @@
 # 04 — Your First Prompt
 ## A Hands-On Walkthrough for Every Role
 
+> **Status: Draft — content under review**
+
 ---
 
 ## What You Will Do
@@ -107,12 +109,9 @@ Replace `[your-role]` with your folder name:
 Then in your Claude Code session, load the remaining context files:
 
 ```
-Please read the following files and use them as your context for this session:
+Please read memory.md and use it as additional context for this session.
 
-1. memory.md
-2. SKILL.md
-
-Confirm when you have read both and tell me: who are you,
+Confirm when done and tell me: who are you,
 what are you currently working on, and what are the most important
 conventions I should know about?
 ```

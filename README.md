@@ -1,6 +1,8 @@
 # Claude Code in the Field
 ### A Role-Based Training Kit for Engineering Teams
 
+> **Status: Draft — content under review** — Some sections may be incomplete or subject to change. Not yet ready for facilitator-led delivery.
+
 > Six colleagues. One company. Real work. You pick a role and live it.
 
 **Claude Code in the Field** is a hands-on training kit that teaches professionals how to use Claude Code through realistic, role-specific scenarios — all set inside a shared fictional B2B SaaS company. Participants don't learn prompting in the abstract; they *become* a colleague with a real job, a real squad, and a real deadline.

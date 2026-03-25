@@ -1,6 +1,8 @@
 # 05 — Safety and Risk
 ## When to Trust Claude, When to Verify, and What Can Go Wrong
 
+> **Status: Draft — content under review**
+
 ---
 
 ## What You Will Learn
@@ -122,8 +124,9 @@ systemctl. The step will fail during an active P1 incident.
 ### Line 1 — Good Prompts Reduce Hallucination
 When you give Claude your actual schemas, your actual conventions, and your
 actual constraints, it is much less likely to invent things. Loading your
-CLAUDE.md, memory.md, and SKILL.md dramatically reduces hallucination because
-Claude is matching against your real context rather than guessing.
+CLAUDE.md and memory.md dramatically reduces hallucination because
+Claude is matching against your real context rather than guessing. Skills
+(pre-loaded as slash commands) further constrain output to your team's conventions.
 
 **Good prompting is your first defence.**
 

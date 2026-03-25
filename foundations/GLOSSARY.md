@@ -1,6 +1,8 @@
 # Glossary
 ## Key Terms for Claude Code Training
 
+> **Status: Draft — content under review**
+
 Quick reference for every term used in this training kit.
 For full explanations, see the linked foundation documents.
 
@@ -15,9 +17,10 @@ repetitive, well-defined multi-step tasks like auditing many files or generating
 tests from a list of acceptance criteria. → See [07_agents.md](07_agents.md)
 
 **Agent instructions**
-A file (`agent_instructions.md`) in each eligible persona folder that contains
-the constraints prompt, task handoff template, and post-agent review checklist
-for running Claude as an agent for that role.
+A markdown file in `.claude/agents/` that defines a named sub-agent — its allowed tools,
+model, and system prompt (constraints, permissions, task rules). Agents are available for
+Developer, Data & Analytics, QA, and Ops personas. Invoked explicitly or spawned
+by Claude for multi-step subtasks.
 
 **API key**
 A secret credential that authenticates your Claude Code session with Anthropic's
@@ -102,7 +105,7 @@ MCP server. You configure which operations are allowed and which are denied.
 → See [03_tools_and_mcp.md](03_tools_and_mcp.md)
 
 **MCP server**
-One configured tool connection in your `mcp_config.json`. Examples: filesystem
+One configured tool connection in your `.mcp.json`. Examples: filesystem
 server (reads/writes local files), GitHub server (reads repos and PRs), PostgreSQL
 server (read-only database queries), Brave Search server (web search).
 
@@ -177,14 +180,16 @@ said within a session but forgets it all when the session ends. Context files
 must be reloaded at the start of each new session.
 
 **settings.json**
-The configuration file for Claude Code. Contains permissions, escalation triggers,
-safety guardrails, and (for Developer, QA, and Ops) hooks that run automatically.
-Configured once at setup and applies to every session.
+The configuration file for Claude Code. Contains `permissions` (allow/deny arrays)
+and `hooks` (PreToolUse, PostToolUse, Stop) that run automatically. Loads at multiple
+levels — project-level (`.claude/settings.json`) applies to all personas; persona-level
+(`personas/<role>/settings.json`) adds role-specific rules on top.
 
-**SKILL.md**
-A detailed guide that teaches Claude how to perform one high-value task to your
-team's standards — the exact format, steps, conventions, and anti-patterns.
-Each persona has one skill file for their most commonly delegated task.
+**Skill**
+A named slash command that teaches Claude how to perform one high-value task to your
+team's standards — the exact format, steps, conventions, and anti-patterns. Skills
+live in `.claude/skills/<name>/SKILL.md` with YAML frontmatter and are invoked as
+`/skill-name` in any session. No manual loading needed.
 → See [02_core_concepts.md](02_core_concepts.md)
 
 **Stop hook**
@@ -222,13 +227,14 @@ in each persona's `reference_card.md` under "Claude for Daily Work."
 |---|---|---|
 | `CLAUDE.md` (root) | Shared company context | Start of every session |
 | `CLAUDE.md` (persona) | Your role identity and rules | Start of every session |
-| `memory.md` | Project knowledge and history | Start of every session |
-| `SKILL.md` | How to do your key task | When doing that specific task |
-| `prompt_library.md` | Ready-made prompts | When starting a task |
-| `reference_card.md` | Prompt writing quick reference | During prompt writing |
+| `memory.md` | Project knowledge and history | On demand — load for complex sessions |
+| `.claude/skills/<name>/SKILL.md` | Slash commands for role-specific tasks | Auto-registered — type `/skill-name` |
+| `prompt_library.md` | Ready-made prompts (human reference) | Copy prompts into your session |
+| `reference_card.md` | Prompt writing quick reference (human reference) | Keep open alongside session |
 | `safety_checklist.md` | Review output before using | After every Claude output |
 | `eval_checklist.md` | Score output quality | When deciding to use or iterate |
-| `mcp_config.json` | Tool connections | At session setup |
-| `agent_instructions.md` | Autonomous multi-step tasks | When delegating a batch task |
-| `settings.json` | Permissions and hooks | Configured once at setup |
+| `.mcp.json` | Tool connections | Auto-loaded at startup |
+| `.claude/agents/<name>.md` | Autonomous multi-step tasks | When delegating a batch task |
+| `.claude/settings.json` | Project-wide permissions and hooks | Auto-loaded at startup |
+| `personas/<role>/settings.json` | Role-specific permissions and hooks | Auto-loaded at startup |
 | `team_playbook.md` | Cross-team workflows | Facilitator and capstone sessions |

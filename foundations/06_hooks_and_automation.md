@@ -1,6 +1,8 @@
 # 06 — Hooks and Automation
 ## Making Safety Automatic With Claude Code Hooks
 
+> **Status: Draft — content under review**
+
 ---
 
 ## What You Will Learn
@@ -140,7 +142,7 @@ with annotations:
 **What a QA engineer sees when a hook fires:**
 ```
 BLOCKED: cy.wait([number]) detected.
-Use cy.intercept + cy.wait("@alias") instead. See SKILL.md for the correct pattern.
+Use cy.intercept + cy.wait("@alias") instead. See /write-cypress-test skill for the correct pattern.
 ```
 
 Claude stops. You see the message. You (or Claude) fix the pattern before the file is written.

@@ -1,6 +1,8 @@
 # 01 — Installation & Setup
 ## Getting Claude Code Running on Your Machine
 
+> **Status: Draft — content under review**
+
 ---
 
 ## What You Will Accomplish
@@ -156,15 +158,14 @@ claude_code_persona/          ← project root
         └── ...
 ```
 
-**Load the remaining context files** (memory and skill) at the start of your session:
+**Optionally load `memory.md`** at the start of your session for deeper project context:
 
 ```
-> Please read the following files and load them as context:
-  - memory.md
-  - SKILL.md
-
+> Please read memory.md and load it as additional context.
   Confirm when done and tell me: who are you and what are we working on?
 ```
+
+Skills are already available as slash commands — type `/` to see them. No manual loading needed.
 
 Claude will respond with a summary. From that point on in the session, it behaves
 as your role-specific assistant.
@@ -193,4 +194,4 @@ Before moving on to the next foundation document, confirm each item:
 | `authentication failed` | API key is wrong or expired | Check key in console.anthropic.com |
 | `rate limit exceeded` | Too many requests from shared key | Ask facilitator for a new key or wait |
 | Claude responds very slowly | Network latency or high API load | Normal — responses can take 5–30 seconds |
-| `/init` says no CLAUDE.md found | You are not in the right folder | Run `cd path/to/claude_code_persona` first |
+| Claude doesn't know the company context | You are not in the right folder | Run `cd path/to/claude_code_persona/personas/<your-role>` first, then relaunch |

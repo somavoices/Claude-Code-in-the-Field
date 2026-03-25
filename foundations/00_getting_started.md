@@ -1,6 +1,8 @@
 # 00 — Getting Started
 ## What Is Claude Code and Why Should You Use It?
 
+> **Status: Draft — content under review**
+
 ---
 
 ## Before You Read Anything Else
@@ -107,7 +109,7 @@ before it is used.
 what your codebase looks like, what your team's conventions are, or who your
 colleagues are. Generic Claude produces generic output. Context-loaded Claude
 produces role-specific, team-specific output. This is why the CLAUDE.md, memory.md,
-and SKILL.md files exist.
+and memory.md files exist — and why skills are pre-loaded as slash commands.
 
 **Claude cannot make decisions for you.** It can draft a PRD, but it cannot decide
 what to build. It can suggest a fix, but it cannot decide whether the fix is right
@@ -150,9 +152,9 @@ The training kit is organised in phases. Each phase builds on the previous one.
 |---|---|---|
 | **Foundations** (you are here) | What Claude Code is, how to set it up, core concepts | `foundations/` folder |
 | **Phase 1** | How to write prompts, safety basics | `prompt_library.md`, `reference_card.md`, `safety_checklist.md` |
-| **Phase 2** | Daily use — context, memory, skills | `CLAUDE.md`, `memory.md`, `SKILL.md` |
-| **Phase 3** | Integration — tools, evaluation | `mcp_config.json`, `eval_checklist.md` |
-| **Phase 4** | Automation — agents, hooks | `agent_instructions.md`, `settings.json` hooks |
+| **Phase 2** | Daily use — context, memory, skills | `CLAUDE.md`, `memory.md`, slash commands (`/write-pr-description` etc.) |
+| **Phase 3** | Integration — tools, evaluation | `.mcp.json`, `eval_checklist.md` |
+| **Phase 4** | Automation — agents, hooks | `.claude/agents/`, `settings.json` hooks |
 
 **Read the foundations documents first.** The persona-specific files (CLAUDE.md,
 memory.md, etc.) will not make sense without the foundations.

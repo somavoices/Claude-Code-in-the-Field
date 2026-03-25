@@ -1,6 +1,8 @@
 # 07 — Agents
 ## Running Claude Autonomously on Multi-Step Tasks
 
+> **Status: Draft — content under review**
+
 ---
 
 ## What You Will Learn
@@ -95,7 +97,7 @@ of steps itself.** You set the goal and the guardrails; Claude figures out the p
 
 ## Setting Up an Agent Session Safely
 
-Each persona's `agent_instructions.md` file contains a ready-made agent
+Each persona's agent definition lives in `.claude/agents/` and contains a ready-made
 constraints prompt. Before using it, understand the three parts:
 
 ### Part 1 — Constraints Prompt
@@ -129,8 +131,8 @@ rather than making a judgment call. Examples:
 
 ### Part 3 — Post-Agent Review Checklist
 After the agent finishes, do not use its output without reviewing it first.
-Each persona's `agent_instructions.md` includes a review checklist specific
-to that task type.
+Each persona's agent definition in `.claude/agents/` includes a review checklist
+specific to that task type.
 
 ---
 
@@ -138,15 +140,24 @@ to that task type.
 
 Here is what a full agent session looks like for the QA Engineer persona:
 
-**Step 1 — Load context (as always):**
+**Step 1 — Launch from the persona folder and load memory:**
 ```
-> Load personas/qa_testing/CLAUDE.md, memory.md, and SKILL.md as context.
+cd personas/qa_testing
+claude
+> Please read memory.md as additional context.
 ```
 
-**Step 2 — Paste the constraints prompt from agent_instructions.md:**
+**Step 2 — Invoke the agent or paste the constraints prompt:**
+
+Option A — invoke directly (Claude spawns the agent automatically):
+```
+> Use the qa-jordan agent to audit all Cypress specs for cy.wait([number]) usage.
+```
+
+Option B — paste the constraints prompt manually from `.claude/agents/qa-jordan.md`:
 ```
 > You are acting as an autonomous QA agent for Jordan Lee, QA Engineer...
-  [full constraints prompt from agent_instructions.md]
+  [full constraints prompt]
 ```
 
 **Step 3 — Give the task using the handoff template:**
@@ -210,7 +221,7 @@ where you need to guide each step.
 
 ## Agents Are Available for Four Personas
 
-| Has agent_instructions.md | Why |
+| Has agent in `.claude/agents/` | Why |
 |---|---|
 | Developer ✅ | Code audits, migration reviews, test generation — well-defined, automatable |
 | Data & Analytics ✅ | Model audits, schema.yml generation — repetitive, well-defined |

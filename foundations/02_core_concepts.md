@@ -1,6 +1,8 @@
 # 02 — Core Concepts
 ## Prompts, Context, Tokens, Memory, and Skills
 
+> **Status: Draft — content under review**
+
 ---
 
 ## What You Will Learn
@@ -68,7 +70,7 @@ like a knowledgeable colleague.
 **How context gets into Claude:**
 
 1. **What you type in the conversation** — anything you write is context
-2. **Files you ask Claude to read** — CLAUDE.md, memory.md, SKILL.md
+2. **Files you ask Claude to read** — CLAUDE.md is auto-loaded; memory.md you load on demand
 3. **Files Claude reads via tools** — when MCP is configured, Claude can read
    your actual code files, query your database, search documentation
 
@@ -181,13 +183,14 @@ and past incidents. Load this alongside CLAUDE.md.
 Think of it as: **the notes you would give a colleague who is taking over your work** —
 current status, decisions made, people involved, things to watch out for.
 
-### SKILL.md — How to Do One Task Really Well
-Teaches Claude the exact steps, format, and conventions for one high-value task
+### Skills — How to Do One Task Really Well
+Skills teach Claude the exact steps, format, and conventions for one high-value task
 (writing a PR description, writing a dbt model, writing a runbook, etc.).
-Load this when you are about to do that specific task.
+They live in `.claude/skills/` and are available as slash commands — type `/write-pr-description`
+and Claude runs that skill automatically. No manual loading required.
 
-Think of it as: **a procedure manual** — step-by-step instructions so the output
-matches your team's standards without you having to explain the standards every time.
+Think of it as: **a procedure manual pre-loaded as a command** — step-by-step instructions
+so the output matches your team's standards without you having to explain them every time.
 
 ---
 
@@ -198,9 +201,9 @@ Here is how a well-structured Claude Code session uses all five concepts:
 ```
 START OF SESSION
 │
-├─ Load CLAUDE.md          → Context: who you are, your rules
-├─ Load memory.md          → Context: project knowledge, people, incidents
-├─ Load SKILL.md           → Context: how to do this task correctly
+├─ CLAUDE.md auto-loads    → Context: who you are, your rules
+├─ Load memory.md          → Context: project knowledge, people, incidents (on demand)
+├─ Type /skill-name        → Skill auto-applies task conventions
 │
 └─ Write a prompt          → Specific task + relevant input
    │
@@ -235,7 +238,7 @@ The people who get excellent results give Claude:
 5. The actual input to work with
 
 That is what this entire training kit is built to provide. The CLAUDE.md, memory.md,
-SKILL.md, and prompt_library.md files do the hard work of assembling the right
+skills, and prompt_library.md files do the hard work of assembling the right
 context — so you do not have to type it from scratch every time.
 
 ---

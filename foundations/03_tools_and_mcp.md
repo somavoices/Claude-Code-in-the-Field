@@ -1,6 +1,8 @@
 # 03 — Tools and MCP
 ## Connecting Claude to Your Real Work Environment
 
+> **Status: Draft — content under review**
+
 ---
 
 ## What You Will Learn
@@ -48,8 +50,8 @@ of tool (filesystem, GitHub, database, web search, etc.).
 
 ## How MCP Works — Step by Step
 
-1. **You configure an MCP server** in your mcp_config.json file, specifying
-   which tool to connect, what credentials to use, and what operations to allow
+1. **You configure an MCP server** in your `.mcp.json` file, specifying
+   which tool to connect and what credentials to use
 
 2. **Claude Code starts the server** when you begin a session
 
@@ -147,13 +149,18 @@ Because Claude's job is to be helpful, and "being helpful" with a database
 connection might mean writing a query that accidentally deletes data. Explicit
 denials prevent Claude from even attempting operations that could cause harm.
 
-**Real example from the developer's mcp_config.json:**
+**Real example from the developer's `.mcp.json`:**
 ```json
 "postgres": {
-  "allowed_operations": ["query", "describe_table", "list_tables", "explain_query"],
-  "denied_operations": ["insert", "update", "delete", "drop", "truncate", "alter"]
+  "command": "npx",
+  "args": ["-y", "@modelcontextprotocol/server-postgres"],
+  "env": {
+    "POSTGRES_CONNECTION_STRING": "${STAGING_DB_URL}"
+  }
 }
 ```
+
+The MCP server itself enforces read-only access — `STAGING_DB_URL` points to the staging database, never production. What Claude can and cannot do with that connection is enforced through `settings.json` permissions and hooks, not inside the MCP config.
 
 Claude can read, inspect, and plan. It cannot change anything.
 
@@ -165,12 +172,13 @@ than full filesystem access. Explicit allow-lists are safer than implicit trust.
 
 ## How to Configure MCP for Your Role
 
-Each persona folder contains a `mcp_config.json` file with pre-configured
-settings for that role. Here is how to apply it:
+Each persona folder contains a `.mcp.json` file with pre-configured MCP servers
+for that role. Claude Code loads this file automatically when launched from that folder.
 
 **Step 1 — Review the config file**
-Open your persona's `mcp_config.json` and read it. Understand what tools
-are configured and what operations are allowed and denied.
+Open your persona's `.mcp.json` and read it. Each entry under `mcpServers` is one
+tool connection — it specifies the command to run, its arguments, and any environment
+variables needed.
 
 **Step 2 — Set environment variables**
 The config references environment variables like `${GITHUB_TOKEN}` and
@@ -183,10 +191,14 @@ export BRAVE_API_KEY="your-brave-api-key"
 
 Ask your facilitator which API keys your organisation provides.
 
-**Step 3 — Apply the config**
-Place the mcp_config.json in your Claude Code configuration folder, or
-reference it when starting a session. Your facilitator will walk through
-the exact steps for your environment.
+**Step 3 — Launch Claude Code from your persona folder**
+```bash
+cd personas/developer    # or your role folder
+claude
+```
+
+Claude Code reads `.mcp.json` automatically at startup and connects the servers.
+No manual loading or flag needed.
 
 **Step 4 — Test the connection**
 Ask Claude to use the tool in a simple, safe way:
@@ -207,7 +219,7 @@ or data to third parties — they only pass information between your local
 environment and Claude.
 
 However, you should still follow these practices:
-- Never put API keys or passwords directly in mcp_config.json — use environment variables
+- Never put API keys or passwords directly in `.mcp.json` — use environment variables
 - Never configure MCP with production database credentials — staging only
 - Review allowed operations in your config before enabling a new MCP server
 - If you are unsure whether an MCP operation is safe, check with your team lead
