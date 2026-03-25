@@ -1,4 +1,10 @@
-# SKILL.md — Writing Functional Requirements (API & Integration Specs)
+---
+name: write-functional-requirements
+description: Write functional requirements for API endpoints and integration specs using REQ-API2-NNN IDs, shall/should language, verifiable acceptance tests, and full data mappings.
+allowed-tools: Read, Write, Grep
+---
+
+# Writing Functional Requirements (API & Integration Specs)
 
 ## When to Use
 When writing functional requirements for an API endpoint, integration workflow,

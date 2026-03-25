@@ -1,4 +1,10 @@
-# SKILL.md — Writing Feature Specifications (PRDs)
+---
+name: write-prd
+description: Write a Product Requirements Document (PRD) for Dispatch Core. Uses Given/When/Then acceptance criteria, requires success metrics, and enforces explicit scope boundaries.
+allowed-tools: Read, Write
+---
+
+# Writing Feature Specifications (PRDs)
 
 ## When to Use
 When writing a product requirements document (PRD) or feature spec for the

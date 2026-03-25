@@ -1,4 +1,10 @@
-# SKILL.md — Writing GitHub PR Descriptions (Dispatch Core Engineering)
+---
+name: write-pr-description
+description: Write a GitHub PR description for Dispatch Core engineering. Follows the What/How/Test Coverage/Risk/Jira/Screenshots format with rules for downstream impact flagging.
+allowed-tools: Read, Grep, Bash
+---
+
+# Writing GitHub PR Descriptions (Dispatch Core Engineering)
 
 ## When to Use
 When opening or updating a pull request on `org/fsm-platform`. Use for any change

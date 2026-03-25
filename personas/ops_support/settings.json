@@ -1,56 +1,30 @@
 {
-  "persona": "ops_support",
-  "name": "Morgan Blake",
-  "role": "Senior Support Engineer",
-  "squad": "Platform & Reliability",
   "permissions": {
-    "file_access": {
-      "allowed": [
-        "runbooks/**",
-        "docs/**",
-        "*.md",
-        "*.yaml",
-        "*.json"
-      ],
-      "denied": [
-        "src/**",
-        "infrastructure/terraform/**",
-        ".env",
-        "**/*secret*",
-        "**/*.pem",
-        "**/*.key"
-      ]
-    },
-    "production": {
-      "read_access": ["Datadog", "PagerDuty", "Zendesk (read)"],
-      "write_access": "none",
-      "db_writes": "never — require Alex Rivera + Staff Engineer sign-off",
-      "config_changes": "never autonomously"
-    },
-    "communications": {
-      "zendesk_draft": true,
-      "zendesk_send": false,
-      "zendesk_send_requires": "Morgan Blake explicit review",
-      "pagerduty_acknowledge": false,
-      "pagerduty_close": false
-    }
+    "allow": [
+      "Read(runbooks/**)",
+      "Read(docs/**)",
+      "Write(runbooks/**)",
+      "Write(docs/**)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(git status:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git checkout:*)",
+      "Bash(git push origin feature/*:*)"
+    ],
+    "deny": [
+      "Bash(git push origin main:*)",
+      "Bash(git push --force:*)",
+      "Bash(psql:*)",
+      "Bash(kubectl apply:*)",
+      "Bash(terraform apply:*)",
+      "Bash(aws * put*:*)",
+      "Bash(aws * delete*:*)",
+      "Bash(aws * update*:*)"
+    ]
   },
-  "escalation_triggers": [
-    "Any P1 affecting Enterprise tier — page Alex Rivera (PagerDuty) if unresolved in 10 min",
-    "Any incident not resolved in 30 min — escalate to Lena Brandt (EM)",
-    "Any suspected data loss or security issue — use #security-incidents, do NOT use normal process",
-    "Any production DB write request — requires Alex Rivera + Staff Engineer, never autonomous",
-    "Any customer-facing communication — Morgan Blake reviews before send"
-  ],
-  "safety_guardrails": [
-    "Never run write commands on production infrastructure",
-    "Never acknowledge or close PagerDuty pages autonomously",
-    "Never send Zendesk replies without Morgan Blake review",
-    "Never share internal service names or architecture in external communications",
-    "Never speculate on root cause in customer-facing messages"
-  ],
   "hooks": {
-    "description": "Shell commands Claude Code executes automatically at lifecycle events",
     "PreToolUse": [
       {
         "matcher": "Bash",

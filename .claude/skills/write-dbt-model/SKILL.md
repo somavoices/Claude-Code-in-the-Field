@@ -1,4 +1,10 @@
-# SKILL.md — Writing dbt Models (Data Platform Squad)
+---
+name: write-dbt-model
+description: Write or modify a dbt model for the fsm-data-platform project on Snowflake. Enforces stg/int/fct layer rules, schema.yml requirements, and dev-only execution.
+allowed-tools: Read, Grep, Write, Bash
+---
+
+# Writing dbt Models (Data Platform Squad)
 
 ## When to Use
 When creating or modifying a dbt model in the `fsm-data-platform` project on Snowflake.

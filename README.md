@@ -33,6 +33,9 @@ claude_code_persona/
 ├── DOCUMENTATION.md        ← Index of all guides and materials
 ├── team_playbook.md        ← How the six roles hand off work to each other
 ├── foundations/            ← Progressive curriculum (concept → agent autonomy)
+├── .claude/                ← Project-level Claude Code config (skills, agents)
+│   ├── skills/             ← Slash commands available across all personas
+│   └── agents/             ← Sub-agent definitions for autonomous tasks
 └── personas/               ← One folder per role, fully self-contained
     ├── developer/
     ├── data_analytics/
@@ -41,6 +44,60 @@ claude_code_persona/
     ├── business_analyst/
     └── ops_support/
 ```
+
+---
+
+## How CLAUDE.md Loading Works
+
+**Claude Code loads `CLAUDE.md` automatically by directory — not by persona name.**
+
+It reads every `CLAUDE.md` found walking up the directory tree from where you launch it.
+
+| Launch from | What loads automatically |
+|---|---|
+| `claude_code_persona/` | Root `CLAUDE.md` only — shared company context, no persona |
+| `claude_code_persona/personas/developer/` | Root `CLAUDE.md` + `developer/CLAUDE.md` — Alex persona active |
+| `claude_code_persona/personas/qa_testing/` | Root `CLAUDE.md` + `qa_testing/CLAUDE.md` — Jordan persona active |
+
+**The persona activates by launching Claude Code from inside that persona's folder.** Switch persona by switching the directory you launch from.
+
+### What loads automatically vs. on demand
+
+| File | How it loads |
+|---|---|
+| `CLAUDE.md` | **Automatic** — loaded on launch if in the directory path |
+| `settings.json` | **Automatic** — all layers merged at startup (see below) |
+| `.mcp.json` | **Automatic** — MCP servers connect at startup |
+| `.claude/skills/` | **Automatic** — registered as slash commands (e.g. `/write-pr-description`) |
+| `.claude/agents/` | **On demand** — invoked explicitly or spawned by Claude for subtasks |
+| `memory.md` | **On demand** — load it when you need deeper project context: *"Read memory.md before we begin"* |
+| `prompt_library.md` | **Human reference** — copy prompts from here into your session; do not load into Claude |
+| `reference_card.md` | **Human reference** — keep open alongside your session; do not load into Claude |
+| `eval_checklist.md` | **Human reference** — use after a session to grade Claude's output quality |
+| `safety_checklist.md` | **Human reference** — check before acting on Claude's output |
+
+### settings.json layers
+
+`settings.json` loads at multiple levels and merges — each layer adds to the one above. `deny` rules always win regardless of layer.
+
+| Layer | File | Contains |
+|---|---|---|
+| User | `~/.claude/settings.json` | Personal defaults across all projects |
+| Project | `.claude/settings.json` ← **this kit** | Rules that apply to every persona — no force push, no secrets |
+| Local | `.claude/settings.local.json` | Personal overrides, gitignored — not in this kit |
+| Persona | `personas/<role>/settings.json` | Role-specific hooks and permissions layered on top |
+
+**In this kit:** the project-level `.claude/settings.json` holds universal constraints (block force push, block credential writes). Each persona's `settings.json` adds role-specific hooks — e.g., the developer persona blocks `DROP/TRUNCATE`, the QA persona blocks `cy.wait([number])`, the ops persona blocks all production write commands.
+
+### When to load memory.md
+
+`memory.md` contains deeper project knowledge that would bloat `CLAUDE.md` if always loaded: past incidents, domain rules, system URLs, relationship notes. Load it when:
+
+- Starting a session on a complex task: *"Read memory.md, then help me with..."*
+- Claude is missing context about a person, system, or past decision
+- You're working across multiple files and want Claude to have full background
+
+**Multi-layer memory** — if you had a root-level `memory.md` (shared team context) and a persona-level `memory.md` (role-specific context), you can load both: *"Read the root memory.md and personas/developer/memory.md before we begin."* Claude merges both into its working context. This kit keeps memory at the persona level only — shared context lives in the root `CLAUDE.md`.
 
 ---
 
@@ -80,18 +137,23 @@ Each persona folder is fully self-contained. A participant can drop into any fol
 
 #### File Descriptions (same structure in every persona folder)
 
-| File | Purpose |
-|---|---|
-| `CLAUDE.md` | Role identity file — defines the persona's name, squad, tech stack, active projects, working style, and what Claude must never do. This is the primary context file Claude Code reads. |
-| `memory.md` | Extended project memory — domain rules, key relationships, system knowledge, and background a new teammate would need to get up to speed |
-| `SKILL.md` | Step-by-step walkthrough of one high-value, role-specific task (e.g., writing a migration for a developer, building a dbt model for a data analyst) |
-| `prompt_library.md` | 5–6 ready-to-use prompts for the most common daily tasks in that role — copy, paste, adapt |
-| `reference_card.md` | One-page quick reference: how to write better prompts, common mistakes, and role-specific tips |
-| `safety_checklist.md` | What to verify before acting on Claude's output — role-specific risks, red flags, and sign-off requirements |
-| `eval_checklist.md` | How to score Claude's response quality — criteria for good vs. poor output in that role's context |
-| `settings.json` | Claude Code permission settings — what tools are allowed, what requires confirmation, automation rules |
-| `mcp_config.json` | MCP server configuration — tool connections to GitHub, Jira, Snowflake, filesystem, or database depending on role |
-| `agent_instructions.md` | How to run Claude autonomously on multi-step tasks — task templates, delegation boundaries, and review checkpoints *(present in: developer, data_analytics, qa_testing, ops_support)* |
+| File | Loaded by | Purpose |
+|---|---|---|
+| `CLAUDE.md` | Automatic | Role identity — persona name, squad, stack, active projects, working style, and hard constraints. The primary context file. |
+| `memory.md` | On demand | Extended project memory — domain rules, key relationships, past incidents, system URLs. Load explicitly at session start for complex tasks. |
+| `settings.json` | Automatic | Claude Code permissions and hooks — controls what commands are allowed and what triggers automated safety checks. |
+| `.mcp.json` | Automatic | MCP server connections — GitHub, filesystem, database, or search tools depending on the role. |
+| `prompt_library.md` | Human reference | 5–6 copy-paste prompts for the most common daily tasks in that role. Do not load into Claude — use as a reference to compose your prompts. |
+| `reference_card.md` | Human reference | One-page prompt engineering guide for that role — 4-part prompt structure, vague vs. specific examples, iteration patterns. Keep open alongside your session. |
+| `safety_checklist.md` | Human reference | What to verify before acting on Claude's output — role-specific risks, red flags, and sign-off requirements. |
+| `eval_checklist.md` | Human reference | How to score Claude's output quality — criteria for good vs. poor responses in that role's context. |
+
+#### .claude/ (project-level, shared across all personas)
+
+| Path | Loaded by | Purpose |
+|---|---|---|
+| `.claude/skills/<name>/SKILL.md` | Automatic | Slash commands for role-specific tasks (e.g. `/write-pr-description`, `/write-dbt-model`). Available in any persona session. |
+| `.claude/agents/<name>.md` | On demand | Sub-agent definitions for autonomous multi-step tasks. Present for: developer, data_analytics, qa_testing, ops_support. PM and BA excluded by design — their work requires human judgement at every step. |
 
 ---
 
@@ -128,8 +190,8 @@ All personas work at the same mid-size B2B SaaS company (~300 employees) buildin
 
 1. Read `foundations/00_getting_started.md`
 2. Pick a persona folder that matches your role
-3. Copy that folder's `CLAUDE.md` to your working directory (or point Claude Code to it)
-4. Open `prompt_library.md` — pick a prompt and run it
+3. Launch Claude Code from inside that persona's folder — both `CLAUDE.md` files load automatically
+4. Open `prompt_library.md` alongside your session — pick a prompt, replace the placeholders, run it
 5. Check `safety_checklist.md` before acting on any output
 
 For cross-functional exercises, see `team_playbook.md`.

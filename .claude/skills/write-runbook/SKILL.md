@@ -1,4 +1,10 @@
-# SKILL.md — Writing Operational Runbooks (Platform & Reliability)
+---
+name: write-runbook
+description: Write or update an operational runbook for the FSM platform. Enforces concrete steps with exact commands, explicit Yes/No decision branches, CAUTION blocks before write operations, and named escalation paths.
+allowed-tools: Read, Write, Grep
+---
+
+# Writing Operational Runbooks (Platform & Reliability)
 
 ## When to Use
 When creating or updating a runbook in `org/fsm-runbooks` for a production incident type
@@ -41,18 +47,18 @@ on the field service management platform.
 ### Step 1 — Confirm the issue
 **Action:** Check Datadog dashboard `[Dashboard Name]` for metric `[metric.name]`.
 **Command:**
-\```
+```
 datadog query: avg:dispatch.queue.depth{env:prod} > 1000
-\```
+```
 **Expected if issue is present:** Queue depth >1000, trending up.
 **If not present:** Skip to [Step 4 — Alternative diagnosis].
 
 ### Step 2 — Identify root cause
 **Action:** Check application logs for correlation ID.
 **Datadog log query:**
-\```
+```
 service:dispatch-service status:error @http.status_code:5*
-\```
+```
 **Look for:** `consumer_not_running` or `queue_timeout` error messages.
 
 ---

@@ -1,53 +1,57 @@
 {
-  "persona": "product_manager",
-  "name": "Sam Okafor",
-  "role": "Product Manager",
-  "squad": "Dispatch Core",
   "permissions": {
-    "file_access": {
-      "allowed": [
-        "docs/**",
-        "specs/**",
-        "*.md",
-        "*.txt"
-      ],
-      "denied": [
-        "src/**",
-        "infrastructure/**",
-        ".env",
-        "**/*secret*"
-      ]
-    },
-    "jira": {
-      "can_read": true,
-      "can_create_tickets": false,
-      "can_close_tickets": false,
-      "require_sam_review": true
-    },
-    "confluence": {
-      "can_read": true,
-      "can_draft": true,
-      "can_publish": false,
-      "publish_requires": "Sam Okafor explicit approval"
-    },
-    "external_content": {
-      "release_notes": "draft only — Sam Okafor reviews before publish",
-      "api_docs": "draft only — Sam Okafor reviews before publish",
-      "customer_communications": "draft only — Sam Okafor reviews before send"
-    }
+    "allow": [
+      "Read(docs/**)",
+      "Read(specs/**)",
+      "Write(docs/**)",
+      "Write(specs/**)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(git status:*)",
+      "Bash(git add *.md:*)",
+      "Bash(git commit:*)",
+      "Bash(git checkout:*)",
+      "Bash(git push origin feature/*:*)"
+    ],
+    "deny": [
+      "Bash(git push origin main:*)",
+      "Bash(git push --force:*)",
+      "Write(src/**)",
+      "Write(infrastructure/**)"
+    ]
   },
-  "escalation_triggers": [
-    "Any ship date or scope commitment — check with Alex Rivera for feasibility first",
-    "Any breaking API change — notify Dani Cho (Mobile PM) 2 weeks ahead",
-    "Any Falcon risk to May 30 date — escalate to Rachel Kim (VP Product) immediately",
-    "Any external-facing content — Sam Okafor review required before publish",
-    "Any reference to unannounced features in customer-facing output — block and flag"
-  ],
-  "safety_guardrails": [
-    "Never commit to a ship date without engineering confirmation",
-    "Never reference unreleased or 'under consideration' features as confirmed",
-    "Never publish external content without Sam Okafor review",
-    "Never share customer PII in any output",
-    "Never create or close Jira tickets autonomously"
-  ]
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "if echo \"$CLAUDE_TOOL_INPUT\" | grep -qiE '(ship date|we will deliver|committed to|guaranteed by)'; then echo 'WARNING: Commitment language detected. Confirm with Alex Rivera before finalising any delivery date or scope promise.'; fi"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo 'Document written. Reminder: Sam Okafor review required before any external-facing content is published. Check eval_checklist.md.'"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo 'Session complete. Before closing: (1) confirm no ship date commitments without engineering sign-off, (2) check no unreleased features referenced externally, (3) route external content to Sam for review.'"
+          }
+        ]
+      }
+    ]
+  }
 }

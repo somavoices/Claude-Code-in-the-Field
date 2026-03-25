@@ -1,52 +1,27 @@
 {
-  "persona": "qa_testing",
-  "name": "Jordan Lee",
-  "role": "QA Engineer",
-  "squad": "Dispatch Core",
   "permissions": {
-    "file_access": {
-      "allowed": [
-        "apps/web/cypress/**",
-        "apps/api-tests/**",
-        "tests/**",
-        "*.md",
-        "*.json",
-        "*.yaml"
-      ],
-      "denied": [
-        ".env",
-        "**/*secret*",
-        "**/*.pem",
-        "infrastructure/**",
-        "db/migrations/**"
-      ]
-    },
-    "ci_cd": {
-      "can_trigger_ci": false,
-      "can_approve_production_deploy": false,
-      "can_close_testRail_runs": false
-    },
-    "test_data": {
-      "allowed_accounts": "qa-test-*@company.internal",
-      "never_use": ["real customer data", "production credentials", "PII"]
-    }
+    "allow": [
+      "Bash(npx cypress run --spec:*)",
+      "Bash(npx cypress open:*)",
+      "Bash(npx playwright test:*)",
+      "Bash(npm run test:*)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(git status:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git checkout:*)",
+      "Bash(git push origin feature/*:*)",
+      "Bash(git push origin fix/*:*)"
+    ],
+    "deny": [
+      "Bash(npx cypress run --env *prod*:*)",
+      "Bash(gh workflow run:*)",
+      "Bash(git push origin main:*)",
+      "Bash(git push --force:*)"
+    ]
   },
-  "escalation_triggers": [
-    "Any request to skip regression suite — requires Lena Brandt (EM) explicit approval",
-    "Any change to job_assignment or status-machine modules — Jordan sign-off required before merge",
-    "P1 bug found in staging within 48h of release — notify Sam Okafor immediately",
-    "Flake rate >30% on any test — escalate to FSM-1301 before merging related code",
-    "CI failure blocking more than 3 PRs — escalate to Alex Rivera"
-  ],
-  "safety_guardrails": [
-    "Never use real customer data in test fixtures",
-    "Never use cy.wait([number]) — use intercept alias",
-    "Never mark release as ready-to-ship without explicit instruction",
-    "Never approve production deployment",
-    "Always create isolated test data in beforeEach — no shared state across tests"
-  ],
   "hooks": {
-    "description": "Shell commands Claude Code executes automatically at lifecycle events",
     "PreToolUse": [
       {
         "matcher": "Write",
@@ -66,7 +41,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "if echo \"$CLAUDE_TOOL_INPUT\" | grep -qiE '(cypress run.*--env.*prod|trigger.*ci|gh workflow run)'; then echo 'BLOCKED: CI pipeline trigger or production test run detected. Jordan manages CI triggers manually.'; exit 1; fi"
+            "command": "if echo \"$CLAUDE_TOOL_INPUT\" | grep -qiE '(cypress run.*--env.*prod|gh workflow run)'; then echo 'BLOCKED: CI pipeline trigger or production test run detected. Jordan manages CI triggers manually.'; exit 1; fi"
           }
         ]
       }

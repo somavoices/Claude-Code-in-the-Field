@@ -1,4 +1,10 @@
-# SKILL.md — Writing Cypress E2E Tests (Dispatch Core)
+---
+name: write-cypress-test
+description: Write Cypress E2E tests for the FSM platform. Enforces data-testid selectors, cy.intercept over cy.wait, isolated beforeEach data, and qa-test accounts.
+allowed-tools: Read, Grep, Write
+---
+
+# Writing Cypress E2E Tests (Dispatch Core)
 
 ## When to Use
 When writing or reviewing Cypress E2E tests for the field service management platform.

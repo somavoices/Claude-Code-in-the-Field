@@ -1,0 +1,32 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(git status:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git checkout:*)"
+    ],
+    "deny": [
+      "Bash(git push origin main:*)",
+      "Bash(git push origin release/*:*)",
+      "Bash(git push --force:*)",
+      "Bash(git push -f:*)",
+      "Bash(* --no-verify:*)"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "if echo \"$CLAUDE_TOOL_INPUT\" | grep -qiE '(\\.env|\\.pem|\\.key|password=|secret=|api_key=)'; then echo 'BLOCKED: Possible secret or credential detected. Never commit credentials.'; exit 1; fi"
+          }
+        ]
+      }
+    ]
+  }
+}
